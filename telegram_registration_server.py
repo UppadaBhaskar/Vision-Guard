@@ -2,7 +2,6 @@ from telegram import Bot
 from telegram.ext import Updater, MessageHandler, Filters, ConversationHandler
 import mysql.connector
 
-# Define your MySQL database credentials
 db_config = {
     "host": "visionguarddb.cynkpxf20wc5.ap-south-1.rds.amazonaws.com",
     "user": "admin",
@@ -10,14 +9,11 @@ db_config = {
     "database": "VisionGuardDB",
 }
 
-# Create a connection to the MySQL database
 db_connection = mysql.connector.connect(**db_config)
 db_cursor = db_connection.cursor()
 
-# Replace 'YOUR_BOT_TOKEN' with your actual token
 bot = Bot(token='6449841998:AAHtJPCwWL55TzxtHnr1SJIzwg5BMnQHXQA')
 
-# Conversation states
 WAITING_FOR_USERNAME, WAITING_FOR_PASSWORD = range(2)
 
 def start(update, context):
@@ -32,7 +28,7 @@ def wait_for_username(update, context):
         return WAITING_FOR_USERNAME
     context.user_data['username'] = user_message
     bot.send_message(update.message.chat_id, "Please enter your password (with at least one number, one special character, and both upper and lower case letters):")
-    return WAITING_FOR_PASSWORD  # Transition to the next state
+    return WAITING_FOR_PASSWORD  
 
 def wait_for_password(update, context):
     user_message = update.message.text
@@ -48,16 +44,13 @@ def wait_for_password(update, context):
     context.user_data['password'] = user_message
     context.user_data['chat_id'] = update.message.from_user.id
 
-    # Store the username, password, and chat_id in your database here
 
     bot.send_message(update.message.chat_id, "Thank you! Your username and password have been recorded.")
 
-    # Store the username, password, and chat_id in your MySQL database
     username = context.user_data['username']
     password = context.user_data['password']
     chat_id = context.user_data['chat_id']
     print(chat_id)
-    # Insert data into the database
     insert_query = "INSERT INTO users (username, password, chat_id) VALUES (%s, %s, %s)"
     data = (username, password, chat_id)
     print(data)
@@ -72,7 +65,7 @@ def wait_for_password(update, context):
         db_cursor.close()
         db_connection.close()'''
 
-    return ConversationHandler.END  # End the conversation
+    return ConversationHandler.END  
 
 def main():
     updater = Updater(token='6449841998:AAHtJPCwWL55TzxtHnr1SJIzwg5BMnQHXQA', use_context=True)
@@ -94,6 +87,5 @@ if __name__ == "__main__":
     try:
         main()
     finally:
-        # Close the database cursor and connection when the bot is done
         db_cursor.close()
         db_connection.close()
